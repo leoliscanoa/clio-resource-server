@@ -9,7 +9,7 @@ import { AuditModule } from './audit/audit.module';
       isGlobal: true,
     }),
     MongooseModule.forRoot(
-      process.env.MONGODB_URI || 'mongodb://admin:admin12345@localhost:27017/audit?authSource=clio',
+      process.env.MONGODB_URI || 'mongodb://admin:admin12345@localhost:27017/clio?authSource=admin',
     ),
     AuditModule,
   ],
