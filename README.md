@@ -4,7 +4,7 @@ Microservicio centralizado de ingesta y consulta de auditoría forense inmutable
 
 ## 1. Visión General
 `clio-resource-server` es el componente auditor del ecosistema Cerberos, encargado de:
-1. Consumir de manera asíncrona los eventos de cambio de estado (Audit Trail / CDC) desde la cola RabbitMQ `audit.events.queue` vinculada a `audit.topic.exchange`.
+1. Consumir de manera asíncrona los eventos de cambio de estado (Audit Trail / CDC) desde la cola RabbitMQ `clio.events.queue` vinculada a `clio.topic.exchange`.
 2. Validar criptográficamente el token M2M contenido en los metadatos de seguridad del sobre AMQP contra el JWKS de Cerberos SSO.
 3. Persistir atómicamente los eventos en MongoDB (`entity_audit_trail`) agrupados por el identificador de la entidad bajo el patrón **Entity Timeline Document** (`_id = entityId`).
 4. Proveer endpoints REST securizados para consultas forenses bajo el path `/api/v1/audit/...`.

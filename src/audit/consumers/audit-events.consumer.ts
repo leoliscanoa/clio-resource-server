@@ -17,14 +17,14 @@ export class AuditEventsConsumer {
   ) {}
 
   @RabbitSubscribe({
-    exchange: 'audit.topic.exchange',
-    routingKey: 'audit.#',
-    queue: 'audit.events.queue',
+    exchange: 'clio.topic.exchange',
+    routingKey: 'clio.#',
+    queue: 'clio.events.queue',
     queueOptions: {
       durable: true,
       arguments: {
-        'x-dead-letter-exchange': 'x-audit-events-dlq',
-        'x-dead-letter-routing-key': 'audit-events-dlq-key',
+        'x-dead-letter-exchange': 'x-clio-events-dlq',
+        'x-dead-letter-routing-key': 'clio-events-dlq-key',
       },
     },
   })
