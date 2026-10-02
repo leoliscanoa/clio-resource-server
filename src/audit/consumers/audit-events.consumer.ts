@@ -1,7 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { ConsumeMessage } from 'amqplib';
-import { AuditEventDTO, M2mSecurityEnvelopeValidator } from '@lliscano/node-rest-commons';
+import {
+  AuditEventDTO,
+  M2mSecurityEnvelopeValidator,
+} from '@lliscano/node-rest-commons';
 import { AuditIngestionService } from '../services/audit-ingestion.service';
 
 @Injectable()
@@ -14,14 +17,14 @@ export class AuditEventsConsumer {
   ) {}
 
   @RabbitSubscribe({
-    exchange: 'clio.topic.exchange',
-    routingKey: 'clio.#',
-    queue: 'clio.events.queue',
+    exchange: 'audit.topic.exchange',
+    routingKey: 'audit.#',
+    queue: 'audit.events.queue',
     queueOptions: {
       durable: true,
       arguments: {
-        'x-dead-letter-exchange': 'x-clio-events-dlq',
-        'x-dead-letter-routing-key': 'clio-events-dlq-key',
+        'x-dead-letter-exchange': 'x-audit-events-dlq',
+        'x-dead-letter-routing-key': 'audit-events-dlq-key',
       },
     },
   })
@@ -43,7 +46,8 @@ export class AuditEventsConsumer {
       this.logger.error(
         `AMQP_SECURITY_OR_INGEST_ERROR: Fallo al procesar evento [${event?.eventId}]. Redirigiendo a DLQ. Error: ${error.message}`,
       );
-      throw error; // Al lanzar el error, RabbitMQ traslada el mensaje a audit.events.dlq
+      // Al lanzar error, el consumidor NACKea y RabbitMQ redirige el mensaje a la DLQ configurada
+      throw error;
     }
   }
 }
