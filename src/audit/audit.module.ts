@@ -26,11 +26,11 @@ import {
     RabbitMQModule.forRoot({
       exchanges: [
         {
-          name: 'clio.topic.exchange',
+          name: process.env.RABBITMQ_AUDIT_EXCHANGE || 'clio.topic.exchange',
           type: 'topic',
         },
         {
-          name: 'x-clio-events-dlq',
+          name: process.env.RABBITMQ_AUDIT_DLX || 'x-clio-events-dlq',
           type: 'direct',
         },
       ],

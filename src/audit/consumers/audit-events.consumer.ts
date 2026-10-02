@@ -7,6 +7,12 @@ import {
 } from '@lliscano/node-rest-commons';
 import { AuditIngestionService } from '../services/audit-ingestion.service';
 
+const CLIO_EXCHANGE = process.env.RABBITMQ_AUDIT_EXCHANGE || 'clio.topic.exchange';
+const CLIO_QUEUE = process.env.RABBITMQ_AUDIT_QUEUE || 'clio-events-queue';
+const CLIO_ROUTING_KEY = process.env.RABBITMQ_AUDIT_ROUTING_KEY || 'clio.#';
+const CLIO_DLX = process.env.RABBITMQ_AUDIT_DLX || 'x-clio-events-dlq';
+const CLIO_DLQ_KEY = process.env.RABBITMQ_AUDIT_DLQ_KEY || 'clio-events-dlq-key';
+
 @Injectable()
 export class AuditEventsConsumer {
   private readonly logger = new Logger(AuditEventsConsumer.name);
@@ -17,14 +23,14 @@ export class AuditEventsConsumer {
   ) {}
 
   @RabbitSubscribe({
-    exchange: 'clio.topic.exchange',
-    routingKey: 'clio.#',
-    queue: 'clio.events.queue',
+    exchange: CLIO_EXCHANGE,
+    routingKey: CLIO_ROUTING_KEY,
+    queue: CLIO_QUEUE,
     queueOptions: {
       durable: true,
       arguments: {
-        'x-dead-letter-exchange': 'x-clio-events-dlq',
-        'x-dead-letter-routing-key': 'clio-events-dlq-key',
+        'x-dead-letter-exchange': CLIO_DLX,
+        'x-dead-letter-routing-key': CLIO_DLQ_KEY,
       },
     },
   })
