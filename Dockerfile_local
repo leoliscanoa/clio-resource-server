@@ -1,0 +1,20 @@
+FROM node:20-alpine
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Copiar dependencias y artefactos compilados
+COPY clio-resource-server/package.json ./
+COPY clio-resource-server/node_modules ./node_modules
+COPY clio-resource-server/dist ./dist
+
+# Copiar node-rest-commons tanto a /node-rest-commons (para resolver symlink ../../../node-rest-commons)
+# como directamente a node_modules/@lliscano/node-rest-commons como paquete físico
+COPY node-rest-commons /node-rest-commons
+RUN rm -rf /app/node_modules/@lliscano/node-rest-commons && \
+    mkdir -p /app/node_modules/@lliscano && \
+    cp -r /node-rest-commons /app/node_modules/@lliscano/node-rest-commons
+
+EXPOSE 8080
+
+CMD ["node", "dist/main.js"]
