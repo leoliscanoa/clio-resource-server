@@ -1,15 +1,18 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
-import {
-  EntityAuditTrail,
-  EntityAuditTrailSchema,
-} from './schemas/entity-audit-trail.schema';
-import { EntityAuditTrailRepository } from './repositories/entity-audit-trail.repository';
 import { AuditIngestionService } from './services/audit-ingestion.service';
 import { AuditQueryService } from './services/audit-query.service';
+import { DynamicTenantCollectionResolver } from './services/dynamic-tenant-collection-resolver.service';
+import { SecurityIncidentService } from './services/security-incident.service';
 import { AuditEventsConsumer } from './consumers/audit-events.consumer';
 import { AuditQueryController } from './controllers/audit-query.controller';
+import { SecurityAlertsController } from './controllers/security-alerts.controller';
+import { RebacAuditAuthorizer } from './security/rebac-audit.authorizer';
+import {
+  SecurityIncident,
+  SecurityIncidentSchema,
+} from './schemas/security-incident.schema';
 import {
   M2mSecurityEnvelopeValidator,
   JwksAuthGuard,
@@ -18,10 +21,7 @@ import {
 @Module({
   imports: [
     MongooseModule.forFeature([
-      {
-        name: EntityAuditTrail.name,
-        schema: EntityAuditTrailSchema,
-      },
+      { name: SecurityIncident.name, schema: SecurityIncidentSchema },
     ]),
     RabbitMQModule.forRoot({
       exchanges: [
@@ -38,11 +38,13 @@ import {
       connectionInitOptions: { wait: false },
     }),
   ],
-  controllers: [AuditQueryController],
+  controllers: [AuditQueryController, SecurityAlertsController],
   providers: [
-    EntityAuditTrailRepository,
+    DynamicTenantCollectionResolver,
     AuditIngestionService,
     AuditQueryService,
+    SecurityIncidentService,
+    RebacAuditAuthorizer,
     AuditEventsConsumer,
     {
       provide: M2mSecurityEnvelopeValidator,
@@ -57,6 +59,11 @@ import {
     },
     JwksAuthGuard,
   ],
-  exports: [EntityAuditTrailRepository, AuditQueryService],
+  exports: [
+    DynamicTenantCollectionResolver,
+    AuditQueryService,
+    AuditIngestionService,
+    SecurityIncidentService,
+  ],
 })
 export class AuditModule {}
